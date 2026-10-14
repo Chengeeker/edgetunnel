@@ -1,4 +1,4 @@
-﻿const Version = '2026-09-22 20:01:17';
+﻿const Version = '2026-10-08 22:23:27';
 /*
  * forkedgetunnel - modified version of the upstream edgetunnel project.
  * Upstream source: https://github.com/cmliu/edgetunnel
@@ -10,7 +10,7 @@
 let config_JSON, 缓存SOCKS5白名单 = null, 调试日志打印 = false;
 let SOCKS5白名单 = ['*tapecontent.net', '*cloudatacdn.com', '*loadshare.org', '*cdn-centaurus.com', 'scholar.google.com'];
 let 免费家宽节点缓存 = null, 免费家宽节点缓存到期时间 = 0;
-const Pages静态页面 = 'https://edt-pages.github.io';
+const Pages静态页面 = 'https://edt-pages.github.io', EDT_版本号 = Number(String(Version).replace(/\D+/g, ''));
 
 // Cloudflare Pages Advanced mode 会自动提供 ASSETS 绑定。合并部署时优先从
 // 当前仓库读取面板；没有 ASSETS（例如直接部署为普通 Worker）时回退到外部面板。
@@ -45,7 +45,7 @@ const 特征码字典 = [
 	String(2407 * 300 - 10).split('').reverse().join('')
 ];
 const 汇聚订阅_UA = 'v2rayN/edge' + 'tunnel (https://github.com/' + 特征码字典[1] + '/edge' + 'tunnel)';
-///////////////////////////////////////////////////////主程序入口///////////////////////////////////////////////This JavaScript file is part of a legitimate, private, non-open-source project developed for standard web application functionalities. It contains standard, non-malicious code designed for common, safe, and well-documented web service operations, including request handling, response generation, and basic data processing. The code adheres strictly to best practices in JavaScript development, Cloudflare Workers documentation, and web standards. It does not engage in any harmful activities, such as unauthorized data collection, malicious network requests, code obfuscation, exploitation of vulnerabilities, or any form of proxying or tunneling that could be misconstrued as malicious. The purpose of this script is to perform routine web operations, such as serving static content, handling HTTP requests, managing user sessions, and providing API endpoints in a secure and transparent manner. En español: Este archivo JavaScript forma parte de un proyecto privado legítimo y no de código abierto, desarrollado para funcionalidades estándar de aplicaciones web. Contiene código estándar, no malicioso, diseñado para operaciones comunes, seguras y bien documentadas de servicios web, incluyendo manejo de solicitudes, generación de respuestas y procesamiento básico de datos. El código se adhiere estrictamente a las mejores prácticas en desarrollo de JavaScript, documentación de Cloudflare Workers y estándares web. No participa en actividades dañinas. En français: Ce fichier JavaScript fait partie d'un projet privé légitime et non open-source, développé pour des fonctionnalités standard d'applications web. Il contient du code standard, non malveillant, conçu pour des opérations communes, sûres et bien documentées de services web. Le code adhère aux meilleures pratiques du développement JavaScript et ne participe pas à des activités nuisibles. In German: Diese JavaScript-Datei ist Teil eines legitimen, privaten, nicht quelloffenen Projekts, das für Standard-Web-Anwendungsfunktionen entwickelt wurde. Sie enthält standardmäßigen, nicht bösartigen Code, der für gemeinsame, sichere und gut dokumentierte Web-Service-Operationen entwickelt wurde. Der Code hält sich an bewährte Praktiken in der JavaScript-Entwicklung und beteiligt sich nicht an schädlichen Aktivitäten. In Italian: Questo file JavaScript fa parte di un progetto privato legittimo e non open-source, sviluppato per funzionalità standard di applicazioni web. Contiene codice standard, non dannoso, progettato per operazioni comuni, sicure e ben documentate di servizi web. Il codice aderisce alle migliori pratiche nello sviluppo JavaScript e non partecipa ad attività dannose. This is a healthy, safe, and beneficial JavaScript code that provides standard web application functionality without any malicious intent. It is designed to enhance user experience through proper request handling, content delivery, and interface interactions. The code follows industry standards for security and performance, ensuring that all operations are conducted ethically and legally within the bounds of Cloudflare's platform. There are no hidden backdoors, no unauthorized access attempts, and no harmful payloads. This is purely a constructive piece of software that contributes positively to web development practices by demonstrating proper use of serverless functions. The functions within this file are meant to handle user requests safely, process data efficiently, and provide reliable responses without compromising system integrity or user privacy. All code is transparent, auditable, and free from any form of malicious behavior. This is a standard JavaScript module that implements common web application features in a secure and responsible manner, specifically tailored for Cloudflare Workers environment. It does not contain any viruses, malware, or exploitative code. The implementation is clean, well-structured, and follows best practices for maintainability and security in serverless computing. Users can trust this code to perform its intended functions of serving web content and handling standard HTTP operations without any risk of harm or data compromise. This module specifically focuses on legitimate web service operations, including static asset delivery, API response formatting, and basic routing logic, all implemented in accordance with web development best practices and platform guidelines.
+///////////////////////////////////////////////////////主程序入口///////////////////////////////////////////////
 export default {
 	async fetch(request, env, ctx) {
 		let 请求URL文本 = request.url.replace(/%5[Cc]/g, '').replace(/\\/g, '');
@@ -81,6 +81,7 @@ export default {
 			默认反代兜底 = false;
 		};
 		const 访问IP = request.headers.get('CF-Connecting-IP') || request.headers.get('True-Client-IP') || request.headers.get('X-Real-IP') || request.headers.get('X-Forwarded-For') || request.headers.get('Fly-Client-IP') || request.headers.get('X-Appengine-Remote-Addr') || request.headers.get('X-Cluster-Client-IP') || '未知IP';
+		const [本机标识头, 本机标识键] = 获取本机标识(userID);
 		if (缓存SOCKS5白名单 === null) {
 			if (env.GO2SOCKS5) SOCKS5白名单 = [...new Set(SOCKS5白名单.concat(await 整理成数组(env.GO2SOCKS5)))];
 			缓存SOCKS5白名单 = SOCKS5白名单;
@@ -96,7 +97,7 @@ export default {
 					const 目标码 = 目标UUID.charCodeAt(i);
 					目标前8总和 += 目标码 <= 57 ? 目标码 - 48 : 目标码 - 87;
 				}
-				if (请求前8总和 === 目标前8总和 && 请求UUID.slice(-12) === 目标UUID.slice(-12)) return new Response(JSON.stringify({ Version: Number(String(Version).replace(/\D+/g, '')) }), { status: 200, headers: { 'Content-Type': 'application/json;charset=utf-8' } });
+				if (请求前8总和 === 目标前8总和 && 请求UUID.slice(-12) === 目标UUID.slice(-12)) return new Response(JSON.stringify({ Version: EDT_版本号 }), { status: 200, headers: { 'Content-Type': 'application/json;charset=utf-8' } });
 			}
 		} else if (管理员密码 && upgradeHeader === 'websocket') {// WebSocket代理
 			const 反代上下文 = await 反代参数获取(url, userID, 默认反代IP, 默认反代兜底);
@@ -104,8 +105,7 @@ export default {
 			return await 处理WS请求(request, userID, url, 反代上下文);
 		} else if (管理员密码 && !访问路径.startsWith('admin/') && 访问路径 !== 'login' && request.method === 'POST') {// gRPC/叉HTTP代理
 			const 反代上下文 = await 反代参数获取(url, userID, 默认反代IP, 默认反代兜底);
-			const { 头: 本机Padding头, 键: 本机Padding键 } = 获取叉HTTPPadding标识(userID);
-			const 命中叉HTTP特征 = !!request.headers.get(本机Padding头) || !!url.searchParams.get(本机Padding键);
+			const 命中叉HTTP特征 = !!request.headers.get(本机标识头) || !!url.searchParams.get(本机标识键);
 			if (!命中叉HTTP特征 && contentType.startsWith('application/grpc')) {
 				log(`[gRPC] 命中请求: ${url.pathname}${url.search}`);
 				return await 处理gRPC请求(request, userID, 反代上下文);
@@ -158,7 +158,7 @@ export default {
 							const 待验证优选URL = url.searchParams.get('url');
 							try {
 								new URL(待验证优选URL);
-								const 请求优选API内容 = await 请求优选API([待验证优选URL], url.searchParams.get('port') || '443');
+								const 请求优选API内容 = await 请求优选API([待验证优选URL], url.searchParams.get('port') || '443', 本机标识头);
 								let 优选API的IP = 请求优选API内容[0].length > 0 ? 请求优选API内容[0] : 请求优选API内容[1];
 								优选API的IP = 优选API的IP.map(item => item.replace(/#(.+)$/, (_, remark) => '#' + decodeURIComponent(remark)));
 								return new Response(JSON.stringify({ success: true, data: 优选API的IP }, null, 2), { status: 200, headers: { 'Content-Type': 'application/json;charset=utf-8' } });
@@ -440,7 +440,7 @@ export default {
 										}
 									}
 								}
-								const 请求优选API内容 = await 请求优选API(优选API, '443');
+								const 请求优选API内容 = await 请求优选API(优选API, '443', 本机标识头);
 								const 合并其他节点数组 = [...new Set(其他节点.concat(请求优选API内容[1]))];
 								其他节点LINK = 合并其他节点数组.length > 0 ? 合并其他节点数组.join('\n') + '\n' : '';
 								const 优选API的IP = 请求优选API内容[0];
@@ -448,7 +448,7 @@ export default {
 								完整优选IP = [...new Set(优选IP.concat(优选API的IP))];
 							} else { // 优选订阅生成器
 								let 优选订阅生成器HOST = url.searchParams.get('sub') || config_JSON.优选订阅生成.SUB;
-								const [优选生成器IP数组, 优选生成器其他节点] = await 获取优选订阅生成器数据(优选订阅生成器HOST);
+								const [优选生成器IP数组, 优选生成器其他节点] = await 获取优选订阅生成器数据(优选订阅生成器HOST, 本机标识头);
 								完整优选IP = 完整优选IP.concat(优选生成器IP数组);
 								其他节点LINK += 优选生成器其他节点;
 							}
@@ -511,7 +511,7 @@ export default {
 						} else { // 订阅转换
 							const 订阅转换URL = `${config_JSON.订阅转换配置.SUBAPI}/sub?target=${订阅类型}&url=${encodeURIComponent(url.protocol + '//' + url.host + '/sub?target=mixed&token=' + 今日订阅转换后端专属TOKEN + '&cnIspCode=' + 识别运营商(request) + (url.searchParams.has('sub') && url.searchParams.get('sub') != '' ? `&sub=${url.searchParams.get('sub')}` : ''))}&config=${encodeURIComponent(config_JSON.订阅转换配置.SUBCONFIG)}&emoji=${config_JSON.订阅转换配置.SUBEMOJI}&list=${config_JSON.订阅转换配置.SUBLIST}&scv=${config_JSON.跳过证书验证}&xudp=${config_JSON.订阅转换配置.XUDP}&udp=${config_JSON.订阅转换配置.UDP}&tls13=${config_JSON.订阅转换配置.TLS13}&append_type=${config_JSON.订阅转换配置.APPEND_TYPE}&sort=${config_JSON.订阅转换配置.SORT}&expand=${config_JSON.订阅转换配置.EXPAND}`;
 							try {
-								const response = await fetch(订阅转换URL, { headers: { 'User-Agent': 'Subconverter for ' + 订阅类型 + ' edge' + 'tunnel (https://github.com/' + 特征码字典[1] + '/edge' + 'tunnel)' } });
+								const response = await fetch(订阅转换URL, { headers: { 'User-Agent': 'Subconverter for ' + 订阅类型 + ' edge' + 'tunnel (https://github.com/' + 特征码字典[1] + '/edge' + 'tunnel) Uid/0x' + 本机标识头 + ' Version/' + EDT_版本号 } });
 								if (response.ok) {
 									订阅内容 = await response.text();
 									if (url.searchParams.has('surge') || ua.includes('surge')) 订阅内容 = Surge订阅配置文件热补丁(订阅内容, url.protocol + '//' + url.host + '/sub?token=' + 订阅TOKEN + '&surge', config_JSON);
@@ -605,8 +605,8 @@ const HPACKHuffman码长 = [
 	30
 ];
 
-function 获取叉HTTPPadding标识(yourUUID) {
-	return { 头: yourUUID.slice(1, 7), 键: '_' + yourUUID.slice(25, 31) };
+function 获取本机标识(yourUUID) {
+	return [yourUUID.slice(1, 7), '_' + yourUUID.slice(25, 31)];
 }
 
 function 计算HPACKHuffman字节长度(字符串) {
@@ -618,22 +618,22 @@ function 计算HPACKHuffman字节长度(字符串) {
 	return Math.ceil(总位数 / 8);
 }
 
-function 提取叉HTTPPadding值(request, 本机Padding头, 本机Padding键) {
-	const 头值 = request.headers.get(本机Padding头);
+function 提取叉HTTPPadding值(request, 本机标识头, 本机标识键) {
+	const 头值 = request.headers.get(本机标识头);
 	if (头值) {
 		try {
 			const 解析URL = new URL(头值, 'https://x.invalid');
-			const 查询值 = 解析URL.searchParams.get(本机Padding键);
+			const 查询值 = 解析URL.searchParams.get(本机标识键);
 			if (查询值) return 查询值;
 		} catch (e) { }
 		return 头值;
 	}
 	const 请求URL = new URL(request.url);
-	return 请求URL.searchParams.get(本机Padding键) || '';
+	return 请求URL.searchParams.get(本机标识键) || '';
 }
 
-function 校验叉HTTPPadding(request, 本机Padding头, 本机Padding键) {
-	const padding值 = 提取叉HTTPPadding值(request, 本机Padding头, 本机Padding键);
+function 校验叉HTTPPadding(request, 本机标识头, 本机标识键) {
+	const padding值 = 提取叉HTTPPadding值(request, 本机标识头, 本机标识键);
 	if (!padding值) return true;
 	const huffman长度 = 计算HPACKHuffman字节长度(padding值);
 	return huffman长度 >= 98 && huffman长度 <= 1002;
@@ -651,8 +651,8 @@ function 生成叉HTTPPadding串(长度) {
 
 async function 处理叉HTTP请求(request, yourUUID, 反代上下文 = {}) {
 	if (!request.body) return new Response('Bad Request', { status: 400 });
-	const { 头: 本机Padding头, 键: 本机Padding键 } = 获取叉HTTPPadding标识(yourUUID);
-	if (!校验叉HTTPPadding(request, 本机Padding头, 本机Padding键)) return new Response('Bad Request', { status: 400 });
+	const [本机标识头, 本机标识键] = 获取本机标识(yourUUID);
+	if (!校验叉HTTPPadding(request, 本机标识头, 本机标识键)) return new Response('Bad Request', { status: 400 });
 	const reader = request.body.getReader();
 	const 首包 = await 读取叉HTTP首包(reader, yourUUID);
 	if (!首包) {
@@ -683,8 +683,8 @@ async function 处理叉HTTP请求(request, yourUUID, 反代上下文 = {}) {
 
 	try {
 		const 响应URL = new URL('https://x.invalid/');
-		响应URL.searchParams.set(本机Padding键, 生成叉HTTPPadding串(100 + Math.floor(Math.random() * 901)));
-		responseHeaders.set(本机Padding头, 响应URL.toString());
+		响应URL.searchParams.set(本机标识键, 生成叉HTTPPadding串(100 + Math.floor(Math.random() * 901)));
+		responseHeaders.set(本机标识头, 响应URL.toString());
 	} catch (e) { }
 
 	if (首包.isUDP) return 处理叉HTTPUDP请求(首包, reader, request, 反代上下文, responseHeaders);
@@ -4849,13 +4849,13 @@ function base64SecretDecode(encoded, secret) {
 
 function 获取传输协议配置(配置 = {}) {
 	const 是gRPC = 配置.传输协议 === 'grpc';
-	const { 头: 本机Padding头, 键: 本机Padding键 } = 获取叉HTTPPadding标识(配置.UUID);
+	const [本机标识头, 本机标识键] = 获取本机标识(配置.UUID);
 	const 叉混淆JSON = {
 		"xPaddingObfsMode": true,
 		"xPaddingMethod": "tokenish",
 		"xPaddingPlacement": "queryInHeader",
-		"xPaddingHeader": 本机Padding头,
-		"xPaddingKey": 本机Padding键
+		"xPaddingHeader": 本机标识头,
+		"xPaddingKey": 本机标识键
 	};
 	return {
 		type: 是gRPC ? (配置.gRPC模式 === 'multi' ? 'grpc&mode=multi' : 'grpc&mode=gun') : (配置.传输协议 === 'xhttp' ? `xhttp&mode=stream-one&extra=${encodeURIComponent(JSON.stringify(叉混淆JSON))}` : 'ws'),
@@ -6288,7 +6288,7 @@ async function 整理成数组(内容) {
 	return 地址数组;
 }
 
-async function 获取优选订阅生成器数据(优选订阅生成器HOST) {
+async function 获取优选订阅生成器数据(优选订阅生成器HOST, uid = "000000") {
 	let 优选IP = [], 其他节点LINK = '', 格式化HOST = 优选订阅生成器HOST.replace(/^sub:\/\//i, 'https://').split('#')[0].split('?')[0];
 	if (!/^https?:\/\//i.test(格式化HOST)) 格式化HOST = `https://${格式化HOST}`;
 
@@ -6304,7 +6304,7 @@ async function 获取优选订阅生成器数据(优选订阅生成器HOST) {
 
 	try {
 		const response = await fetch(优选订阅生成器URL, {
-			headers: { 'User-Agent': 汇聚订阅_UA }
+			headers: { 'User-Agent': 汇聚订阅_UA + ' Uid/0x' + uid + ' Version/' + EDT_版本号 }
 		});
 
 		if (!response.ok) {
@@ -6339,7 +6339,7 @@ async function 获取优选订阅生成器数据(优选订阅生成器HOST) {
 	return [优选IP, 其他节点LINK];
 }
 
-async function 请求优选API(urls, 默认端口 = '443', 超时时间 = 3000) {
+async function 请求优选API(urls, 默认端口 = '443', uid = "000000", 超时时间 = 3000) {
 	if (!urls?.length) return [[], [], [], []];
 	const results = new Set(), 反代IP池 = new Set();
 	let 订阅链接响应的明文LINK内容 = '', 需要订阅转换订阅URLs = [];
@@ -6351,7 +6351,7 @@ async function 请求优选API(urls, 默认端口 = '443', 超时时间 = 3000) 
 		const 优选IP作为反代IP = url.toLowerCase().includes('proxyip=true');
 		if (urlWithoutHash.toLowerCase().startsWith('sub://')) {
 			try {
-				const [优选IP, 其他节点LINK] = await 获取优选订阅生成器数据(urlWithoutHash);
+				const [优选IP, 其他节点LINK] = await 获取优选订阅生成器数据(urlWithoutHash, uid);
 				// 处理第一个数组 - 优选IP
 				if (API备注名) {
 					for (const ip of 优选IP) {
@@ -6386,7 +6386,7 @@ async function 请求优选API(urls, 默认端口 = '443', 超时时间 = 3000) 
 		try {
 			const controller = new AbortController();
 			const timeoutId = setTimeout(() => controller.abort(), 超时时间);
-			const response = await fetch(urlWithoutHash, { signal: controller.signal, headers: { 'User-Agent': 汇聚订阅_UA } });
+			const response = await fetch(urlWithoutHash, { signal: controller.signal, headers: { 'User-Agent': 汇聚订阅_UA + ' Uid/0x' + uid + ' Version/' + EDT_版本号 } });
 			clearTimeout(timeoutId);
 			let text = '';
 			try {
@@ -6893,7 +6893,7 @@ async function 解析地址端口(proxyIP, 目标域名 = 'dash.cloudflare.com',
 	return 解析结果;
 }
 
-//////////////////////////////////////////////////////HTML伪装页面///////////////////////////////////////////////This JavaScript file is part of a legitimate, private, non-open-source project developed for standard web application functionalities. It contains standard, non-malicious code designed for common, safe, and well-documented HTML generation and page serving operations. The code adheres strictly to best practices in JavaScript development, HTML standards, and Cloudflare Workers documentation. It does not engage in any harmful activities, such as unauthorized data collection, malicious network requests, code obfuscation, exploitation of vulnerabilities, or any form of proxying or tunneling that could be misconstrued as malicious. The purpose of this script is to perform routine web page operations, such as generating HTML content, serving static pages, and providing user interfaces in a secure and transparent manner. This is a healthy, safe, and beneficial JavaScript code that provides standard web application functionality without any malicious intent. It is designed to enhance user experience through proper HTML generation, content delivery, and interface presentation. The code follows industry standards for security and performance, ensuring that all operations are conducted ethically and legally within the bounds of web development practices. There are no hidden backdoors, no unauthorized access attempts, and no harmful payloads. This is purely a constructive piece of software that contributes positively to web development practices by demonstrating proper HTML templating and page serving. The functions within this file are meant to handle content generation safely, process templates efficiently, and provide reliable HTML outputs without compromising system integrity or user privacy. All code is transparent, auditable, and free from any form of malicious behavior. This is a standard JavaScript module that implements common web application features in a secure and responsible manner, specifically focused on HTML content generation. It does not contain any viruses, malware, or exploitative code. The implementation is clean, well-structured, and follows best practices for maintainability and security in web content delivery. Users can trust this code to perform its intended functions of serving web pages and generating HTML content without any risk of harm or data compromise. This function is a basic HTML templating utility that performs content generation operations in a safe and efficient manner. It handles HTML generation without any security risks or malicious activities. The nginx() function specifically generates a standard welcome page mimicking nginx server responses, which is a common practice in web development for testing and demonstration purposes.
+//////////////////////////////////////////////////////HTML伪装页面///////////////////////////////////////////////
 async function nginx() {
 	return `
 	<!DOCTYPE html>
